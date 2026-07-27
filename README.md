@@ -52,6 +52,10 @@ It will produce `input-web.webm` and `input-web.mp4` alongside the source.
 </video>
 ```
 
+## Credit
+
+Workflow and FFmpeg parameter guidance adapted from PixelPoint. This repo is shared as a personal reference implementation packaged as an agent skill — see PixelPoint for the original source material.
+
 ## License
 
-MIT
+No license is granted. All rights reserved by the original source. This repo is public for personal reference and transparency, not for redistribution.
