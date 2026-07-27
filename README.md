@@ -4,8 +4,8 @@ A [Claude Code](https://claude.com/claude-code) / Agent skill that compresses an
 
 ## How it works
 
-1. Install the skill
-2. Download FFmpeg [https://www.ffmpeg.org/download.html](url)
+1. Add the skill
+2. Download [FFmpeg](https://www.ffmpeg.org/download.html)
 3. Copy the path of the video, e.g. `C:\Users\Lenovo\Downloads\video.mp4`
 4. Tell your agent to compress it, e.g. "compress this video: C:\Users\Lenovo\Downloads\video.mp4"
 5. Get back two web-ready files (`.webm` and `.mp4`) plus a drop-in `<video>` snippet
