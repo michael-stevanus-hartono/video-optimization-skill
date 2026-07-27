@@ -2,6 +2,14 @@
 
 A [Claude Code](https://claude.com/claude-code) / Agent skill that compresses and optimizes video files for web delivery using FFmpeg — producing dual-source **VP9 (WebM)** + **H.265 (MP4)** output for broad browser support.
 
+## How it works
+
+1. Install the skill
+2. Download FFmpeg
+3. Copy the path of the video, e.g. `C:\Users\Lenovo\Downloads\video.mp4`
+4. Tell your agent to compress it, e.g. "compress this video: C:\Users\Lenovo\Downloads\video.mp4"
+5. Get back two web-ready files (`.webm` and `.mp4`) plus a drop-in `<video>` snippet
+
 ## What it does
 
 Point the agent at a video file and it will:
