@@ -63,8 +63,9 @@ It will produce `input-web.webm` and `input-web.mp4` alongside the source.
 ## Credit
 
 Workflow and FFmpeg parameter guidance adapted from PixelPoint. This repo packages that technique as an installable agent skill — see PixelPoint for the original source material.
-- YouTube video: [https://youtu.be/DP5SoQRf2Gk?si=uKROiAZ74P5j0AbX](url)
-- Blog post: [https://pixelpoint.io/blog/web-optimized-video-ffmpeg/](url)
+
+- YouTube video: [https://youtu.be/DP5SoQRf2Gk](https://youtu.be/DP5SoQRf2Gk?si=uKROiAZ74P5j0AbX)
+- Blog post: [https://pixelpoint.io/blog/web-optimized-video-ffmpeg/](https://pixelpoint.io/blog/web-optimized-video-ffmpeg/)
 
 ## License
 
