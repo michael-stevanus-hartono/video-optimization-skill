@@ -26,7 +26,7 @@ It defaults to high-quality software encoding (`libvpx-vp9`, `libx265`) and only
 With the [`skills`](https://github.com/) CLI:
 
 ```bash
-npx skills add <your-username>/video-web-optimization
+npx skills add michael-stevanus-hartono/video-optimization-skill
 ```
 
 Or manually, copy `SKILL.md` into your skills directory:
