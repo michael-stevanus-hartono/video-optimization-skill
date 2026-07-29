@@ -17,9 +17,12 @@ path equal to the input path.
    `ffprobe -v error -show_entries stream=width,height,codec_name,duration -of default=noprint_wrappers=1 <input>`
 3. Ask target resolution if unclear. Default 1920 wide for hero backgrounds;
    3840 only if source is 4K+ and quality is critical.
-4. Encode both formats using the software commands below.
-5. Report final file sizes. Target ~2MB max for hero/background video.
-   If over, raise CRF by 4 and re-encode.
+4. Create a `Compressed Videos` folder in the same directory as the source
+   (skip if it already exists) and write both outputs there, so the `.webm`
+   and `.mp4` for a clip stay together instead of scattering next to the source.
+5. Encode both formats using the software commands below.
+6. Report final file sizes and the output folder path. Target ~2MB max for
+   hero/background video. If over, raise CRF by 4 and re-encode.
 
 ## Path handling (Windows)
 
@@ -27,6 +30,8 @@ path equal to the input path.
 - Quote any path containing spaces.
 - Do not use forward-double-slash form (`C://`).
 - If the user gives a folder, list video files in it and confirm which to encode.
+- The `Compressed Videos` output folder contains a space — always quote paths
+  that reference it.
 
 ## Commands — software encoding (default, all platforms)
 

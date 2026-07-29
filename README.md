@@ -8,14 +8,14 @@ A [Claude Code](https://claude.com/claude-code) / Agent skill that compresses an
 2. Download [FFmpeg](https://www.ffmpeg.org/download.html)
 3. Copy the path of the video, e.g. `C:\Users\Lenovo\Downloads\video.mp4`
 4. Tell your agent to compress it, e.g. "compress this video: C:\Users\Lenovo\Downloads\video.mp4"
-5. Get back two web-ready files (`.webm` and `.mp4`) plus a drop-in `<video>` snippet
+5. Get back two web-ready files (`.webm` and `.mp4`) in one `Compressed Videos` folder, plus a drop-in `<video>` snippet
 
 ## What it does
 
 Point the agent at a video file and it will:
 
 1. Verify FFmpeg is installed and inspect the source (resolution, codec, duration).
-2. Encode two web-ready versions without ever modifying the original:
+2. Encode two web-ready versions into a `Compressed Videos` folder, without ever modifying the original:
    - `*.webm` — VP9 (Chrome, Firefox, Android)
    - `*.mp4` — H.265/HEVC with `hvc1` tag + faststart (Safari, iOS, macOS)
 3. Strip audio, target ~2 MB for hero/background loops, and report final file sizes.
@@ -49,7 +49,7 @@ Ask your agent something like:
 
 > compress this video: C:\path\to\input.mp4
 
-It will produce `input-web.webm` and `input-web.mp4` alongside the source.
+It will produce `input-web.webm` and `input-web.mp4` in a `Compressed Videos` folder next to the source.
 
 ## Output HTML
 
