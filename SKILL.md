@@ -17,9 +17,12 @@ path equal to the input path.
    `ffprobe -v error -show_entries stream=width,height,codec_name,duration -of default=noprint_wrappers=1 <input>`
 3. Ask target resolution if unclear. Default 1920 wide for hero backgrounds;
    3840 only if source is 4K+ and quality is critical.
-4. Create a `Compressed Videos` folder in the same directory as the source
-   (skip if it already exists) and write both outputs there, so the `.webm`
-   and `.mp4` for a clip stay together instead of scattering next to the source.
+4. Create a `Compressed Videos` folder in the same directory as the source and
+   write both outputs there, so the `.webm` and `.mp4` for a clip stay together
+   instead of scattering next to the source. If `Compressed Videos` already
+   exists, do not reuse it or overwrite its contents — create
+   `Compressed Videos - 1` instead, incrementing the trailing number
+   (`- 2`, `- 3`, ...) until an unused folder name is found.
 5. Encode both formats using the software commands below, launching both as
    background jobs at the same time rather than one after the other — the
    codecs are independent, so wall-clock time is bounded by the slower job
