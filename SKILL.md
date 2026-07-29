@@ -20,8 +20,11 @@ path equal to the input path.
 4. Create a `Compressed Videos` folder in the same directory as the source
    (skip if it already exists) and write both outputs there, so the `.webm`
    and `.mp4` for a clip stay together instead of scattering next to the source.
-5. Encode both formats using the software commands below. Note the wall-clock
-   time the encode takes — it goes in the report.
+5. Encode both formats using the software commands below, launching both as
+   background jobs at the same time rather than one after the other — the
+   codecs are independent, so wall-clock time is bounded by the slower job
+   instead of the sum of both. Note the wall-clock time the encode takes — it
+   goes in the report.
 6. Report results using the format below. Target ~2MB max for hero/background
    video. If over, raise CRF by 4 and re-encode.
 
@@ -60,13 +63,13 @@ You saved 95% (36.6 MB) in 11 minutes.
 WebM / VP9 (desktop, Android):
 
 ```bash
-ffmpeg -i "input.mov" -c:v libvpx-vp9 -crf 40 -vf scale=1920:-2 -deadline best -an "output.webm"
+ffmpeg -i "input.mov" -c:v libvpx-vp9 -crf 40 -vf scale=1920:-2 -deadline best -row-mt 1 -tile-columns 2 -an "output.webm"
 ```
 
 MP4 / H.265 (Safari, iOS, macOS):
 
 ```bash
-ffmpeg -i "input.mov" -c:v libx265 -crf 32 -vf scale=1920:-2 -preset veryslow -tag:v hvc1 -movflags faststart -pix_fmt yuv420p -an "output.mp4"
+ffmpeg -i "input.mov" -c:v libx265 -crf 32 -vf scale=1920:-2 -preset slow -tag:v hvc1 -movflags faststart -pix_fmt yuv420p -an "output.mp4"
 ```
 
 These are the correct default. Prefer them for short hero loops — quality per
@@ -121,7 +124,9 @@ Hardware notes:
 | `-vf unsharp=5:5:1.0` | Sharpen after downscale to ≤1080p | append to `-vf` chain |
 | `-an` | Strip audio (smaller + autoplay-safe) | always |
 | `-deadline best` | VP9 quality mode | always |
-| `-preset veryslow` | libx265 compression efficiency | always |
+| `-row-mt 1` | Enables row-based multithreading in libvpx-vp9 | always (near-zero quality cost) |
+| `-tile-columns 2` | Splits frame into parallel-encodable column tiles | always (small quality cost at high tile counts) |
+| `-preset slow` | libx265 compression efficiency/speed balance | always (~40% faster than `veryslow` for ~4% larger file at same CRF) |
 | `-tag:v hvc1` | Required for Safari/iOS H.265 playback | always |
 | `-movflags faststart` | Moves moov atom to head for streaming | always on MP4 |
 | `-pix_fmt yuv420p` | Fixes green/black screen on old devices | always on MP4 |
