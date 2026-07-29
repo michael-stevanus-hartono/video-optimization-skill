@@ -20,9 +20,31 @@ path equal to the input path.
 4. Create a `Compressed Videos` folder in the same directory as the source
    (skip if it already exists) and write both outputs there, so the `.webm`
    and `.mp4` for a clip stay together instead of scattering next to the source.
-5. Encode both formats using the software commands below.
-6. Report final file sizes and the output folder path. Target ~2MB max for
-   hero/background video. If over, raise CRF by 4 and re-encode.
+5. Encode both formats using the software commands below. Note the wall-clock
+   time the encode takes — it goes in the report.
+6. Report results using the format below. Target ~2MB max for hero/background
+   video. If over, raise CRF by 4 and re-encode.
+
+## Report format
+
+Always close with this summary:
+
+```
+input.mp4 has been successfully compressed!
+
+- Original -> 38.4 MB
+- Compressed .mp4 -> 0.96 MB
+- Compressed .webm -> 1.75 MB
+
+You saved 95% (36.6 MB) in 11 minutes.
+```
+
+- Filename is the source file's name, not the output names.
+- Sizes in MB to one decimal place.
+- The savings percentage and MB figure compare the original against the
+  **larger** of the two outputs, since that is the worst case a browser fetches.
+- Round encode time to the nearest minute; use seconds if under a minute.
+- State the output folder path after the summary.
 
 ## Path handling (Windows)
 
