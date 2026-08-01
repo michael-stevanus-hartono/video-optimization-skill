@@ -56,18 +56,47 @@ Treat it as a rough estimate, not a guarantee: it's based on one measured
 clip, and slower/faster CPUs, higher resolutions (especially above 1080p),
 and very different content complexity will shift the actual time.
 
+For long files using the hardware MP4 + fast-VP9 path (see "Hardware
+acceleration" and "Multiple videos" below): measured on a 35.5-minute
+1920×1080 screen recording (slide deck + webcam PiP, audio kept) —
+`hevc_amf` took ~8 minutes (**~0.23x source duration**, i.e. ~4.4x realtime),
+VP9 `-deadline good -cpu-used 4` took ~58.5 minutes (**~1.65x source
+duration**, i.e. ~0.6x realtime — slower than realtime despite the faster
+settings). VP9 is the bottleneck in this path, same as the software path.
+
+Benchmark-clip extrapolation (see "Size estimate") ran noticeably optimistic
+on this file: a 60-second sample predicted ~5.7 min (MP4) / ~42.5 min (VP9)
+for the full video, but actual came in at ~8 min / ~58.5 min — about 35-40%
+longer than predicted for both encoders. A single short sample doesn't
+capture a long file's full variation (e.g. more slide transitions than the
+sampled section had), so treat a one-clip extrapolation as a floor, not a
+ceiling — mention to the user that actual time may run ~30-40% over the
+benchmark's prediction, or sample from 2-3 points across the file instead of
+one if the estimate needs to be tighter.
+
 ## Size estimate
 
 Give a **wide range**, not a precise number — unlike time, output size
-depends on motion/detail complexity far more than on duration, and there's
-only one real measurement to go on so far (a high-motion 36.6 MB spinning
-product clip came out ~95% smaller). Static or low-motion footage
-(talking-head, mostly-still shots) typically compresses more than that;
-busy/chaotic footage (fast motion, heavy grain, lots of detail changing
-every frame) typically compresses less. Say something like "roughly 90-97%
-smaller — very rough, depends heavily on how much motion is in the clip" and
-give the resulting MB range for the source file's actual size. Never present
-this as a firm prediction.
+depends on motion/detail complexity far more than on duration. Two real
+measurements so far:
+- High-motion product footage (spinning object, minimal cuts): ~95% smaller.
+- Screen recording with slide transitions + webcam PiP: only ~80% smaller —
+  the busier a video is at the *frame-to-frame* level (scene/slide changes,
+  layered video-within-video), the less it compresses, even though nothing
+  about it looks "high motion" the way the spinning-object clip did.
+
+Static or low-motion footage (talking-head, mostly-still shots) typically
+compresses more than either of those; busy/chaotic footage (fast motion,
+heavy grain, frequent scene changes) typically compresses less. Say
+something like "roughly 80-97% smaller — very rough, depends heavily on
+scene changes and motion in the clip" and give the resulting MB range for
+the source file's actual size. Never present this as a firm prediction.
+
+The benchmark-clip technique underestimated size the same way it
+underestimated time on the screen-recording test: predicted ~139 MB (MP4) /
+~56 MB (WebM), actual came in at ~201 MB / ~91 MB — 40-60% larger than the
+single-clip extrapolation. Apply the same "treat it as a floor" caveat to
+size estimates as to time estimates for long, scene-varied files.
 
 For an unusually long or high-value file, a tighter estimate is worth the
 extra step: extract a short benchmark clip (e.g. `-ss <offset> -t 60 -c copy`
