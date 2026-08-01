@@ -26,10 +26,13 @@ path equal to the input path.
    measurement (a previous run of this exact file, or a benchmark clip
    extrapolation) rather than a pure guess — note the grounding in a
    parenthetical instead of dropping the caveat, since it's still an
-   estimate for the full file. Then ask a plain yes/no: proceed with
-   compression? Do not start any encode until the user confirms. If there's
-   more than one file, also remind them files are processed one at a time
-   (see "Multiple videos").
+   estimate for the full file. If any file's estimate is **30 minutes or
+   more**, don't fold it quietly into the table — explicitly flag that file,
+   ask whether to proceed as-is or use a faster approach, and offer the
+   options in "Long encode alternatives" below. Then ask a plain yes/no:
+   proceed with compression? Do not start any encode until the user
+   confirms. If there's more than one file, also remind them files are
+   processed one at a time (see "Multiple videos").
 5. On yes, for each file in turn: print `<filename.ext> is compressing...`,
    then create a `Compressed Videos` folder in the same directory as the
    source and write both outputs there, so the `.webm` and `.mp4` for a clip
@@ -116,6 +119,44 @@ that's not representative), encode it with the candidate settings, and
 extrapolate the byte rate to the full duration. Still label it "(rough)" —
 it's one sample of the file, not the whole thing — but it's meaningfully
 better grounded than the generic range.
+
+## Long encode alternatives
+
+Triggered whenever a file's estimate hits 30 minutes or more (see workflow
+step 4). Present these as real options, not just a warning — most files that
+hit this threshold can come down substantially without a visible quality
+hit, based on what actually worked on a 35.5-minute screen recording:
+
+- **Hardware acceleration for MP4.** Check available encoders first
+  (`ffmpeg -hide_banner -encoders | findstr "amf nvenc qsv"` on Windows,
+  `| grep videotoolbox` on macOS) and use whichever matches the GPU — see
+  "Commands — hardware acceleration" above. Measured: `hevc_amf` on an
+  integrated AMD GPU cut MP4 encode time from a software-`x265`-scale
+  estimate of hours down to ~8 minutes for 35.5 minutes of 1080p footage,
+  with no visible quality loss on a direct frame comparison. This alone
+  usually isn't enough on its own, though — see the next point.
+- **Faster VP9 settings.** VP9 has no hardware encode path on this machine
+  (confirmed: no `vp9_amf`/`vp9_nvenc` exist), so it stays the bottleneck
+  even after switching MP4 to hardware. Swap `-deadline best` for
+  `-deadline good -cpu-used 4` (both still with `-row-mt 1 -tile-columns 2`).
+  Measured: this took a 60s clip from 71.85s (slower than realtime) down to
+  well under realtime, and held up fine on a direct frame comparison against
+  the original — no visible quality loss on that test. `-deadline realtime`
+  is faster still but noticeably softer; treat it as a last resort, not a
+  default swap.
+- **Resolution downscale**, per the existing default rule — still the
+  fallback if the above two don't get under budget, since it does have a
+  visible quality cost the user should explicitly agree to.
+- **Benchmark first.** Given the estimate uncertainty documented in "Time
+  estimate" above, test 2-3 candidate settings on a short extracted clip
+  (see the benchmark-clip technique) before committing to the full file,
+  rather than guessing which combination will hit the target.
+
+Ask the user directly: proceed at the current (slow) estimate, or try one of
+these? Don't silently apply hardware/faster settings without asking — the
+existing hardware-acceleration caveat about integrated GPUs looking softer
+still applies, even though it didn't show up on the one comparison run so
+far.
 
 ## Multiple videos
 
