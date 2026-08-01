@@ -77,13 +77,24 @@ one if the estimate needs to be tighter.
 ## Size estimate
 
 Give a **wide range**, not a precise number — unlike time, output size
-depends on motion/detail complexity far more than on duration. Two real
+depends on motion/detail complexity far more than on duration. Three real
 measurements so far:
 - High-motion product footage (spinning object, minimal cuts): ~95% smaller.
 - Screen recording with slide transitions + webcam PiP: only ~80% smaller —
   the busier a video is at the *frame-to-frame* level (scene/slide changes,
   layered video-within-video), the less it compresses, even though nothing
   about it looks "high motion" the way the spinning-object clip did.
+- Screen recording with continuous zoom/pan/scroll over a **photographic**
+  desktop wallpaper (fine texture in every frame — foliage, mountains,
+  grass — not a flat UI color): ~93% smaller, but at a much higher
+  bits-per-second cost than the figure alone suggests. A 24-second clip of
+  this produced *more* WebM data than a 31-second spinning-product clip
+  (~2.6x the bytes per second of source). The expensive part isn't the
+  wallpaper alone or the pan alone — it's both together: continuous zoom/pan
+  means almost no pixel stays in the same place between frames, so the
+  encoder can't cheaply reuse the previous frame's data the way it can on
+  mostly-static content, and it's forced to re-spend bits on the
+  photographic detail every single frame instead of once.
 
 Static or low-motion footage (talking-head, mostly-still shots) typically
 compresses more than either of those; busy/chaotic footage (fast motion,
