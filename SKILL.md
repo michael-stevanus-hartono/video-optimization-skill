@@ -13,22 +13,24 @@ path equal to the input path.
 
 1. Verify FFmpeg exists: `ffmpeg -version`. If missing, stop and tell the user
    to install it (`winget install ffmpeg` on Windows, `brew install ffmpeg` on macOS).
-2. If given a folder, list video files in it, confirm which to encode, and
-   tell the user up front that videos are processed one at a time (see
-   "Multiple videos" below for why) along with the total estimated wait
-   (sum of each file's estimate from step 4).
-3. Inspect the source:
-   `ffprobe -v error -show_entries stream=width,height,codec_name,duration -of default=noprint_wrappers=1 <input>`
-4. Ask target resolution if unclear. Default 1920 wide for hero backgrounds;
-   3840 only if source is 4K+ and quality is critical. Then tell the user the
-   estimated wait time before starting the encode (see "Time estimate" below)
-   so they know what to expect.
-5. Create a `Compressed Videos` folder in the same directory as the source and
-   write both outputs there, so the `.webm` and `.mp4` for a clip stay together
-   instead of scattering next to the source. If `Compressed Videos` already
-   exists, do not reuse it or overwrite its contents — create
-   `Compressed Videos - 1` instead, incrementing the trailing number
-   (`- 2`, `- 3`, ...) until an unused folder name is found.
+2. If given a folder, list video files in it and confirm which to encode.
+3. For every file to encode: inspect the source
+   (`ffprobe -v error -show_entries stream=width,height,codec_name,duration -of default=noprint_wrappers=1 <input>`)
+   and ask target resolution if unclear (default 1920 wide for hero
+   backgrounds; 3840 only if source is 4K+ and quality is critical).
+4. Before encoding anything, show the user an estimate for every file (see
+   "Time estimate" and "Size estimate" below) — filename, estimated wait,
+   estimated output size range — plus the total wait if there's more than
+   one file. Then ask a plain yes/no: proceed with compression? Do not start
+   any encode until the user confirms. If there's more than one file, also
+   remind them files are processed one at a time (see "Multiple videos").
+5. On yes, for each file in turn: print `<filename.ext> is compressing...`,
+   then create a `Compressed Videos` folder in the same directory as the
+   source and write both outputs there, so the `.webm` and `.mp4` for a clip
+   stay together instead of scattering next to the source. If
+   `Compressed Videos` already exists, do not reuse it or overwrite its
+   contents — create `Compressed Videos - 1` instead, incrementing the
+   trailing number (`- 2`, `- 3`, ...) until an unused folder name is found.
 6. Encode both formats using the software commands below, launching both as
    background jobs at the same time rather than one after the other — the
    codecs are independent, so wall-clock time is bounded by the slower job
@@ -47,6 +49,19 @@ e.g. "this is about 45 seconds of footage, so expect roughly 12-15 minutes."
 Treat it as a rough estimate, not a guarantee: it's based on one measured
 clip, and slower/faster CPUs, higher resolutions (especially above 1080p),
 and very different content complexity will shift the actual time.
+
+## Size estimate
+
+Give a **wide range**, not a precise number — unlike time, output size
+depends on motion/detail complexity far more than on duration, and there's
+only one real measurement to go on so far (a high-motion 36.6 MB spinning
+product clip came out ~95% smaller). Static or low-motion footage
+(talking-head, mostly-still shots) typically compresses more than that;
+busy/chaotic footage (fast motion, heavy grain, lots of detail changing
+every frame) typically compresses less. Say something like "roughly 90-97%
+smaller — very rough, depends heavily on how much motion is in the clip" and
+give the resulting MB range for the source file's actual size. Never present
+this as a firm prediction.
 
 ## Multiple videos
 
