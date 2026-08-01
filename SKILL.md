@@ -18,12 +18,18 @@ path equal to the input path.
    (`ffprobe -v error -show_entries stream=width,height,codec_name,duration -of default=noprint_wrappers=1 <input>`)
    and ask target resolution if unclear (default 1920 wide for hero
    backgrounds; 3840 only if source is 4K+ and quality is critical).
-4. Before encoding anything, show the user an estimate for every file (see
-   "Time estimate" and "Size estimate" below) — filename, estimated wait,
-   estimated output size range — plus the total wait if there's more than
-   one file. Then ask a plain yes/no: proceed with compression? Do not start
-   any encode until the user confirms. If there's more than one file, also
-   remind them files are processed one at a time (see "Multiple videos").
+4. Before encoding anything, show the user a table for every file with:
+   filename, **original size**, estimated wait, and **estimated size
+   reduction** (see "Time estimate" and "Size estimate" below) — plus the
+   total wait if there's more than one file. Always keep the "(rough)" label
+   on the size-reduction figure, even when a number is grounded in real
+   measurement (a previous run of this exact file, or a benchmark clip
+   extrapolation) rather than a pure guess — note the grounding in a
+   parenthetical instead of dropping the caveat, since it's still an
+   estimate for the full file. Then ask a plain yes/no: proceed with
+   compression? Do not start any encode until the user confirms. If there's
+   more than one file, also remind them files are processed one at a time
+   (see "Multiple videos").
 5. On yes, for each file in turn: print `<filename.ext> is compressing...`,
    then create a `Compressed Videos` folder in the same directory as the
    source and write both outputs there, so the `.webm` and `.mp4` for a clip
@@ -62,6 +68,14 @@ every frame) typically compresses less. Say something like "roughly 90-97%
 smaller — very rough, depends heavily on how much motion is in the clip" and
 give the resulting MB range for the source file's actual size. Never present
 this as a firm prediction.
+
+For an unusually long or high-value file, a tighter estimate is worth the
+extra step: extract a short benchmark clip (e.g. `-ss <offset> -t 60 -c copy`
+partway into the source, not the very start, which is often a title card
+that's not representative), encode it with the candidate settings, and
+extrapolate the byte rate to the full duration. Still label it "(rough)" —
+it's one sample of the file, not the whole thing — but it's meaningfully
+better grounded than the generic range.
 
 ## Multiple videos
 
