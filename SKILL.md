@@ -13,27 +13,58 @@ path equal to the input path.
 
 1. Verify FFmpeg exists: `ffmpeg -version`. If missing, stop and tell the user
    to install it (`winget install ffmpeg` on Windows, `brew install ffmpeg` on macOS).
-2. Inspect the source:
+2. If given a folder, list video files in it, confirm which to encode, and
+   tell the user up front that videos are processed one at a time (see
+   "Multiple videos" below for why) along with the total estimated wait
+   (sum of each file's estimate from step 4).
+3. Inspect the source:
    `ffprobe -v error -show_entries stream=width,height,codec_name,duration -of default=noprint_wrappers=1 <input>`
-3. Ask target resolution if unclear. Default 1920 wide for hero backgrounds;
-   3840 only if source is 4K+ and quality is critical.
-4. Create a `Compressed Videos` folder in the same directory as the source and
+4. Ask target resolution if unclear. Default 1920 wide for hero backgrounds;
+   3840 only if source is 4K+ and quality is critical. Then tell the user the
+   estimated wait time before starting the encode (see "Time estimate" below)
+   so they know what to expect.
+5. Create a `Compressed Videos` folder in the same directory as the source and
    write both outputs there, so the `.webm` and `.mp4` for a clip stay together
    instead of scattering next to the source. If `Compressed Videos` already
    exists, do not reuse it or overwrite its contents — create
    `Compressed Videos - 1` instead, incrementing the trailing number
    (`- 2`, `- 3`, ...) until an unused folder name is found.
-5. Encode both formats using the software commands below, launching both as
+6. Encode both formats using the software commands below, launching both as
    background jobs at the same time rather than one after the other — the
    codecs are independent, so wall-clock time is bounded by the slower job
-   instead of the sum of both. Note the wall-clock time the encode takes — it
-   goes in the report.
-6. Report results using the format below. Target ~2MB max for hero/background
+   instead of the sum of both. Note the actual wall-clock time the encode
+   takes — it goes in the report.
+7. Report results using the format below. Target ~2MB max for hero/background
    video. If over, raise CRF by 4 and re-encode.
+
+## Time estimate
+
+Measured on an 8-core/16-thread machine at 1080p with current default
+settings (parallel WebM+MP4, `-row-mt 1 -tile-columns 2`, x265 `-preset
+slow`): a 31-second 1518×1080 clip took 10-11 minutes, roughly **15-20x the
+source duration**. Use that ratio to give a rough estimate before starting —
+e.g. "this is about 45 seconds of footage, so expect roughly 12-15 minutes."
+Treat it as a rough estimate, not a guarantee: it's based on one measured
+clip, and slower/faster CPUs, higher resolutions (especially above 1080p),
+and very different content complexity will shift the actual time.
+
+## Multiple videos
+
+Process a folder of videos **one at a time**, not concurrently. Each single
+video's WebM+MP4 pair is already tuned to use most of the CPU's threads
+between them (VP9's `tile-columns 2` uses a handful, x265 uses the rest) —
+that pairing works because the two jobs have complementary resource
+footprints. Running multiple *whole videos* concurrently instead stacks
+several thread-hungry x265 processes on the same core pool, which is
+straight oversubscription rather than complementary use, so it's unlikely to
+give a proportional speedup and makes ETAs unreliable. If the user explicitly
+asks to try running multiple videos concurrently anyway, it's fine to do —
+just say plainly beforehand that it hasn't been benchmarked and may not
+actually finish faster than doing them one at a time.
 
 ## Report format
 
-Always close with this summary:
+Single file — always close with this summary:
 
 ```
 input.mp4 has been successfully compressed!
@@ -44,6 +75,11 @@ input.mp4 has been successfully compressed!
 
 You saved 95% (36.6 MB) in 11 minutes.
 ```
+
+Batch (multiple files from a folder): report each file individually using
+the format above, then close with a combined total in the same style (total
+original size, total of the larger output per file, overall % saved, and
+total wall-clock time across the whole batch).
 
 - Filename is the source file's name, not the output names.
 - Sizes in MB to one decimal place.
