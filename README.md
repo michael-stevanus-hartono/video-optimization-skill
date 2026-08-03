@@ -6,9 +6,9 @@ A [Claude Code](https://claude.com/claude-code) / Agent skill that compresses an
 
 1. Add the skill
 2. Download [FFmpeg](https://www.ffmpeg.org/download.html)
-3. Copy the path of the video, e.g. `C:\Users\Lenovo\Downloads\video.mp4` — or a folder of videos
+3. Copy the path of the video or a folder of videos, e.g. `C:\Users\Lenovo\Downloads\video.mp4`
 4. Tell your agent to compress it, e.g. "compress this video: C:\Users\Lenovo\Downloads\video.mp4"
-5. Review the estimate (original size, expected wait, rough size reduction) and confirm — if a file is estimated at 30+ minutes, you'll be offered faster alternatives (hardware encoding, faster VP9 settings, downscaling) before committing
+5. Review the estimate (original size, expected wait, rough size reduction) and confirm. If a file is estimated at 30+ minutes, you'll be offered faster alternatives (hardware encoding, faster VP9 settings, downscaling) before committing
 6. Get back two web-ready files (`.webm` and `.mp4`) per video in a `Compressed Videos` folder, plus a drop-in `<video>` snippet
 
 ## What it does
