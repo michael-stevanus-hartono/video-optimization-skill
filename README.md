@@ -6,22 +6,32 @@ A [Claude Code](https://claude.com/claude-code) / Agent skill that compresses an
 
 1. Add the skill
 2. Download [FFmpeg](https://www.ffmpeg.org/download.html)
-3. Copy the path of the video, e.g. `C:\Users\Lenovo\Downloads\video.mp4`
+3. Copy the path of the video, e.g. `C:\Users\Lenovo\Downloads\video.mp4` — or a folder of videos
 4. Tell your agent to compress it, e.g. "compress this video: C:\Users\Lenovo\Downloads\video.mp4"
-5. Get back two web-ready files (`.webm` and `.mp4`) in one `Compressed Videos` folder, plus a drop-in `<video>` snippet
+5. Review the estimate (original size, expected wait, rough size reduction) and confirm — if a file is estimated at 30+ minutes, you'll be offered faster alternatives (hardware encoding, faster VP9 settings, downscaling) before committing
+6. Get back two web-ready files (`.webm` and `.mp4`) per video in a `Compressed Videos` folder, plus a drop-in `<video>` snippet
 
 ## What it does
 
-Point the agent at a video file and it will:
+Point the agent at a video file (or a folder of them) and it will:
 
-1. Verify FFmpeg is installed and inspect the source (resolution, codec, duration).
-2. Encode two web-ready versions into a `Compressed Videos` folder, without ever modifying the original:
+1. Verify FFmpeg is installed and inspect the source(s) — resolution, codec, duration.
+2. Show a per-file estimate (original size, expected wait, rough size reduction) and ask for
+   confirmation before encoding anything. Files estimated at 30+ minutes are flagged explicitly,
+   with faster alternatives offered instead of a silent long wait.
+3. On multiple files, process them **one at a time**, not concurrently — a single video's
+   WebM+MP4 pair already uses most available CPU threads, so running whole videos in parallel
+   doesn't reliably speed things up.
+4. Encode two web-ready versions into a `Compressed Videos` folder, without ever modifying the
+   original (existing output is never overwritten — a repeat run creates `Compressed Videos - 1`,
+   `- 2`, etc.):
    - `*.webm` — VP9 (Chrome, Firefox, Android)
    - `*.mp4` — H.265/HEVC with `hvc1` tag + faststart (Safari, iOS, macOS)
-3. Strip audio, target ~2 MB for hero/background loops, and report final file sizes.
-4. Hand back a drop-in `<video>` snippet.
+5. Report the actual results (size, % saved, time taken) and hand back a drop-in `<video>` snippet.
 
-It defaults to high-quality software encoding (`libvpx-vp9`, `libx265`) and only reaches for hardware encoders (AMD AMF / NVIDIA NVENC / Intel QSV / Apple VideoToolbox) for fast drafts or long clips.
+It defaults to high-quality software encoding (`libvpx-vp9`, `libx265`) and only reaches for
+hardware encoders (AMD AMF / NVIDIA NVENC / Intel QSV / Apple VideoToolbox) for fast drafts, long
+clips, or when a long-encode estimate prompts you to opt into a faster path.
 
 ## Requirements
 
@@ -49,7 +59,12 @@ Ask your agent something like:
 
 > compress this video: C:\path\to\input.mp4
 
-It will produce `input-web.webm` and `input-web.mp4` in a `Compressed Videos` folder next to the source.
+or point it at a folder to batch-process every video inside:
+
+> compress these videos: C:\path\to\video-folder
+
+Either way, you'll see an estimate and a yes/no confirmation before anything encodes. It will
+produce `input-web.webm` and `input-web.mp4` in a `Compressed Videos` folder next to the source.
 
 ## Output HTML
 
