@@ -53,6 +53,22 @@ Or manually, copy `SKILL.md` into your skills directory:
 ~/.claude/skills/video-web-optimization/SKILL.md
 ```
 
+## Update
+
+`npx skills add` clones this repo once and copies the files in — it doesn't stay linked to
+GitHub, so pushes here don't reach anyone who already installed it. Pull the latest version
+with:
+
+```bash
+npx skills update michael-stevanus-hartono/video-optimization-skill
+```
+
+Or update every skill installed via the `skills` CLI at once:
+
+```bash
+npx skills update
+```
+
 ## Usage
 
 Ask your agent something like:
